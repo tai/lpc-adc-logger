@@ -67,7 +67,7 @@ init_sd() {
     rc = pf_mount(&ctx.fs);
     log("pf_mount: %d\r\n", rc);
 
-    rc = pf_open("TEST.TXT");
+    rc = pf_open("LOG-0000.DAT");
     log("pf_open: %d\r\n", rc);
 
     //
