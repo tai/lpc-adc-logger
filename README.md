@@ -21,9 +21,9 @@ $ make
 ```
 
 # How to Use
-- Insert a SD card with a file LOG-00.TXT on its root folder.
-- LOG-00.TXT must be prepared as a zero-filled file large enough to hold all log data.
--- Command `dd if=/dev/zero of=LOG-00.TXT bs=1024 count=1024` would do
+- Insert a SD card with a file LOG-0000.DAT on its root folder.
+- LOG-0000.DAT must be prepared as a zero-filled file large enough to hold all log data.
+-- Command `dd if=/dev/zero of=LOG-0000.DAT bs=1024 count=1024` would do
 - Pressing "Erase/Flush" button during powerup erases data in datafile.
 - Pressing "Erase/Flush" button during operation flushes data to datafile.
 - Connect UART to see a stream of currently sampled data.
@@ -32,6 +32,30 @@ $ make
 # LED pattern meanings
 - Fast blink - processing button press
 - Slow blink - in operation
+
+# Log File Format
+
+File is written as a series of `logdata_t` data, dumped from memory.
+Following is an excerpt from the source code:
+
+```
+struct logdata_t {
+    uint32_t magic;   //   4B
+    uint8_t length;   //   1B
+    uint8_t skip[27]; //  27B
+    struct {          // 480B
+        uint16_t ad[4];
+    } sample[60];
+} __attribute__((packed));
+```
+
+After every 60 samples (of 4ch 16-bit ADC data), this 512B block of
+data structure gets full and dumped to the disk. So length is usually
+0x3c (decimal 60), but could be less if user has forced to save by
+pressing a save button.
+
+LPC1114 is a little-endian ARM Cortex-M0 processor, so beware with the
+byte order when accessing multi-byte value.
 
 # Pinouts
 - dp1  - SD card (MISO)
