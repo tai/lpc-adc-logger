@@ -27,7 +27,7 @@ $ make
 - Pressing "Erase/Flush" button during powerup erases data in datafile.
 - Pressing "Erase/Flush" button during operation flushes data to datafile.
 - Connect UART to see a stream of currently sampled data.
-- You can power off anytime - however, most recent page (256B) amount of data will be lost unless flushed by a button press.
+- You can power off anytime - however, most recent 512B (1 sector) amount of data will be lost unless flushed by a button press.
 
 # LED pattern meanings
 - Fast blink - processing button press
@@ -48,6 +48,7 @@ $ make
 - dp12 - SWD (SWDIO)
 - dp13 - NC (reserved for PWM/WAKEUP)
 - dp14 - Button #1 (Flush/Erase Button)
+
 - dp15 - Serial RX
 - dp16 - Serial TX
 - dp17 - NC (reserved for button)
