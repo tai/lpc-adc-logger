@@ -4,7 +4,7 @@
 
 #include "mbed.h"
 #include "pt.h"
-#include "pff/pff.h"
+#include "pff.h"
 #include "semihost.h"
 #include "PinDetect.h"
 
