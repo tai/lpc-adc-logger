@@ -195,14 +195,14 @@ PT_THREAD(data_save_task(pt *pt)) {
 
 int
 main() {
-    pt pt1, pt2, pt3, pt4;
+    pt pt1, pt2, pt3;
 
     init();
 
     for (;;) {
         check_pin_task(&pt1);
-        data_read_task(&pt3);
-        data_save_task(&pt2);
+        data_read_task(&pt2);
+        data_save_task(&pt3);
         sleep();
     }
     return 0;
