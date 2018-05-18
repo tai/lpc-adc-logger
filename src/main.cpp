@@ -37,7 +37,7 @@ struct logdata_t {
     struct {          // 480B
         uint16_t ad[4];
     } sample[60];
-};
+} __attribute__((packed));
 
 // Global context to pass around
 struct ctx_t {
