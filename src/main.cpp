@@ -45,6 +45,8 @@ struct ctx_t {
     FATFS fs;
     logdata_t log;
 
+    uint32_t sampling_interval_us;
+
     bool is_key_pressed;
     bool is_ready_to_read;
     bool is_ready_to_save;
@@ -129,12 +131,15 @@ init() {
 
     // init context
     ctx.log.magic = MAGIC;
+    ctx.sampling_interval_us = 60000000;
 
     // start blinking
     blinkTicker.attach_us(blink, BLINK_NORM);
 
     // start sampling
-    readTicker.attach_us([]() -> void { ctx.is_ready_to_read = true; }, 1000000);
+    readTicker.attach_us([]() -> void {
+            ctx.is_ready_to_read = true;
+        }, ctx.sampling_interval_us);
 
     // start input-check
     saveButton.attach_asserted([]() -> void { ctx.is_key_pressed = true; });
