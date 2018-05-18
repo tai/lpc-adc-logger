@@ -16,6 +16,7 @@ Primary motivation is to test and record battery runtime independently, without 
 ```
 $ git clone lpc-adc-logger
 $ cd lpc-adc-logger
+$ platformio lib install 234
 $ make
 ```
 
@@ -69,7 +70,8 @@ $ make
 - Sampling rate is currently 1 sample/s, will make it 1 sample/min in final version.
 
 # See Also
-- PlatformIO
-- BlackMagic
-- mBed
-- PFF
+- PlatformIO (https://platformio.org/)
+- BlackMagic (https://github.com/blacksphere/blackmagic)
+- mBed (https://mbed.org/)
+- PFF (http://elm-chan.org/fsw/ff/00index_p.html)
+- PinDetect (PlatformIO library #ID: 234)
