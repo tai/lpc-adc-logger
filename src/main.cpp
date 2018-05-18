@@ -17,16 +17,17 @@
 AnalogIn ad0(dp4), ad1(dp9), ad2(dp10), ad3(dp11);
 DigitalOut led1(dp26);
 
-PinDetect saveButton(dp14);
-DigitalIn saveButtonRaw(dp14);
+PinDetect saveButton(dp14, PullUp);
 
 Ticker readTicker;
 Ticker blinkTicker;
 
 #define NR_ELEM(a) (sizeof(a) / sizeof(a[0]))
 
-#define ASSERTED 0
 #define MAGIC 0xDEADBEEF
+
+#define BLINK_NORM 1000000
+#define BLINK_FAST   80000
 
 // Record to hold sampled data
 // Must fit into single FAT sector (512B)
@@ -48,6 +49,10 @@ struct ctx_t {
     bool is_ready_to_read;
     bool is_ready_to_save;
 } ctx;
+
+void blink() {
+    led1 = !led1;
+}
 
 void
 init_sd() {
@@ -74,7 +79,7 @@ init_sd() {
     // By default, when 'save' button is NOT asserted during startup,
     // logger will skip existing data and try to append to next free sector.
     //
-    if (saveButtonRaw == ! ASSERTED) {
+    if (saveButton) {
         do {
             WORD nr;
             rc = pf_read(&ctx.log, sizeof(ctx.log), &nr);
@@ -98,13 +103,17 @@ init() {
     ctx.log.magic = MAGIC;
 
     // start blinking
-    blinkTicker.attach_us([]() -> void { led1 = !led1; }, 1000000);
+    blinkTicker.attach_us(blink, BLINK_NORM);
 
     // start sampling
     readTicker.attach_us([]() -> void { ctx.is_ready_to_read = true; }, 1000000);
 
     // start input-check
     saveButton.attach_asserted([]() -> void { ctx.is_key_pressed = true; });
+    saveButton.setAssertValue(0);
+    saveButton.setSamplesTillAssert(3);
+    saveButton.setSamplesTillHeld(50);
+    saveButton.setSampleFrequency(20000); // check every 20ms
 }
 
 //
@@ -120,6 +129,7 @@ PT_THREAD(check_pin_task(pt *pt)) {
         ctx.is_key_pressed = false;
         ctx.is_ready_to_save = true;
 
+        blinkTicker.attach_us(blink, BLINK_FAST);
         log("key press detected.\r\n");
     }
     PT_END(pt);
@@ -165,6 +175,7 @@ PT_THREAD(data_save_task(pt *pt)) {
         PT_WAIT_UNTIL(pt, ctx.is_ready_to_save);
         ctx.is_ready_to_save = false;
 
+        blinkTicker.attach_us(blink, BLINK_FAST);
         log("saving data...\r\n");
 
         FRESULT rc;
@@ -177,6 +188,7 @@ PT_THREAD(data_save_task(pt *pt)) {
         log("pf_write(0): %d, nr=%d\r\n", rc, nr);
 
         ctx.log.length = 0;
+        blinkTicker.attach_us(blink, BLINK_NORM);
     }
     PT_END(pt);
 }
