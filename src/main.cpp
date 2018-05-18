@@ -25,6 +25,7 @@ Ticker blinkTicker;
 
 #define NR_ELEM(a) (sizeof(a) / sizeof(a[0]))
 
+#define ASSERTED 0
 #define MAGIC 0xDEADBEEF
 
 // Record to hold sampled data
@@ -69,14 +70,19 @@ init_sd() {
     rc = pf_open("TEST.TXT");
     log("pf_open: %d\r\n", rc);
 
-    // TODO: skip existing data to support appending
-    if (false) {
-        WORD nr;
-        uint32_t magic = 0;
-        rc = pf_read(&magic, sizeof(magic), &nr);
-        log("pf_read: %d\r\n", rc);
+    //
+    // By default, when 'save' button is NOT asserted during startup,
+    // logger will skip existing data and try to append to next free sector.
+    //
+    if (saveButtonRaw == ! ASSERTED) {
+        do {
+            WORD nr;
+            rc = pf_read(&ctx.log, sizeof(ctx.log), &nr);
+            log("pf_read: %d, nr=%d\r\n", rc, nr);
+        } while (ctx.log.magic == MAGIC);
 
-        rc = pf_lseek(0);
+        // Rewind back by 1 sector as this is the sector we should write to
+        rc = pf_lseek(ctx.fs.fptr - sizeof(ctx.log));
         log("pf_lseek: %d\r\n", rc);
     }
 }
@@ -85,11 +91,11 @@ void
 init() {
     log("init: entered\r\n");
 
-    // init context
-    ctx.log.magic = MAGIC;
-
     // init SD card
     init_sd();
+
+    // init context
+    ctx.log.magic = MAGIC;
 
     // start blinking
     blinkTicker.attach_us([]() -> void { led1 = !led1; }, 1000000);
