@@ -1,6 +1,8 @@
 #include "mbed.h"
 #include "semihost.h"
 
+#ifdef DEVICE_LOCALFILESYSTEM
+
 void
 semihost_printf(const char *format, ...) {
     char buf[100];
@@ -10,3 +12,5 @@ semihost_printf(const char *format, ...) {
     semihost_puts(buf);
     va_end(ap);
 }
+
+#endif

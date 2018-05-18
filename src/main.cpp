@@ -5,10 +5,10 @@
 #include "mbed.h"
 #include "pt.h"
 #include "pff.h"
-#include "semihost.h"
 #include "PinDetect.h"
 
-#if DEVICE_SEMIHOST
+#ifdef LOG_SEMIHOST
+#include "semihost.h"
 #define log semihost_printf
 #else
 #define log printf

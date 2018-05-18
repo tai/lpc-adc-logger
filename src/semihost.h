@@ -4,6 +4,8 @@
 #include "mbed.h"
 #include "platform/mbed_semihost_api.h"
 
+#ifdef DEVICE_LOCALFILESYSTEM
+
 inline void
 semihost_putchar(int c) {
     unsigned char s = c;
@@ -17,5 +19,7 @@ semihost_puts(const char *s) {
 
 void
 semihost_printf(const char *format, ...);
+
+#endif
 
 #endif
