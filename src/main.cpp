@@ -76,19 +76,47 @@ init_sd() {
     log("pf_open: %d\r\n", rc);
 
     //
-    // By default, when 'save' button is NOT asserted during startup,
-    // logger will skip existing data and try to append to next free sector.
+    // Check how many sectors are already written
     //
-    if (saveButton) {
-        do {
-            WORD nr;
-            rc = pf_read(&ctx.log, sizeof(ctx.log), &nr);
-            log("pf_read: %d, nr=%d\r\n", rc, nr);
-        } while (ctx.log.magic == MAGIC);
+    int16_t nr_saved = -1;
+    do {
+        WORD nr;
+        rc = pf_read(&ctx.log, sizeof(ctx.log), &nr);
+        log("pf_read: %d, nr=%d\r\n", rc, nr);
+        nr_saved++;
+    } while (ctx.log.magic == MAGIC);
 
-        // Rewind back by 1 sector as this is the sector we should write to
+    //
+    // By default, when 'save' button is NOT pressed during startup,
+    // logger will skip existing data and try to append to next free sector.
+    // Data on SD will be cleared only when the button is pressed during
+    // startup.
+    //
+
+    // Append mode. Rewind to last-found empty sector.
+    if (saveButton) {
         rc = pf_lseek(ctx.fs.fptr - sizeof(ctx.log));
         log("pf_lseek: %d\r\n", rc);
+    }
+    // Overwrite mode. Erase all existing sectors.
+    else {
+        if (nr_saved > 0) {
+            WORD nr;
+
+            rc = pf_lseek(0);
+            log("pf_lseek(0): %d\r\n", rc);
+
+            while (nr_saved--) {
+                rc = pf_write(&ctx.log, sizeof(ctx.log), &nr);
+                log("pf_write: %d, nr=%d\r\n", rc, nr);
+            }
+            rc = pf_write(0, 0, &nr);
+            log("pf_write(0): %d, nr=%d\r\n", rc, nr);
+        }
+
+        // Start writing again from the first sector
+        rc = pf_lseek(0);
+        log("pf_lseek(0): %d\r\n", rc);
     }
 }
 
