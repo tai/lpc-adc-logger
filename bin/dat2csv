@@ -1,0 +1,29 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Generate CSV from a DAT file written by lpc-adc-logger.
+
+Usage:
+  $ dat2csv < LOG-0000.DAT > output.csv
+
+"""
+
+import sys
+from struct import unpack, unpack_from
+
+MAGIC = 0xDEADBEEF
+
+def read_sector():
+  return unpack("<IB27x480s", sys.stdin.buffer.read(512))
+
+print("ad0,ad1,ad2,ad3")
+
+f_magic, f_len, f_data = read_sector()
+while f_magic == MAGIC:
+  for i in range(f_len):
+    f_adc = unpack_from("<4H", f_data, 8 * i)
+    value = map(lambda v: "%.2f" % (3.3 * v / 0xFFFF), f_adc)
+    print(",".join(value))
+
+  f_magic, f_len, f_data = read_sector()
+
