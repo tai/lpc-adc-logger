@@ -616,7 +616,7 @@ Wire Wire Line
 Wire Wire Line
 	2000 1700 2000 1550
 Wire Wire Line
-	1400 5600 6400 5600
+	6400 5600 1400 5600
 Wire Wire Line
 	1400 5600 1400 3650
 Wire Wire Line
@@ -711,9 +711,6 @@ Connection ~ 4100 4200
 Wire Wire Line
 	3300 4300 3500 4300
 Wire Wire Line
-	3500 4300 3500 3350
-Connection ~ 3500 3350
-Wire Wire Line
 	3300 4400 3600 4400
 Wire Wire Line
 	3600 4400 3600 3150
@@ -746,4 +743,7 @@ Connection ~ 4650 2500
 Connection ~ 4850 2600
 Connection ~ 5600 5050
 Connection ~ 5600 5400
+Wire Wire Line
+	3500 4300 3500 3450
+Connection ~ 3500 3450
 $EndSCHEMATC
